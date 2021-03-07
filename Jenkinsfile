@@ -7,15 +7,19 @@ pipeline{
     }
 
     stages{
-        
+        stage('Checkout SCM'){
+            steps{
+                checkout scm
+            }
+        }
         stage('Build FrontEnd'){
             agent {
                 docker { image 'node'}
                 
             }
             steps{
-                sh 'npm install'
-                sh 'npm compile'
+                sh 'sudo npm install'
+                sh 'sudo npm build'
             }
 
         }
