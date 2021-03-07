@@ -25,11 +25,13 @@ pipeline{
         }
         stage('Build BackEnd'){
             agent{
-                    docker {image 'maven:adoptopenjdk'}
+                    docker {image 'maven:3.6.3-adoptopenjdk-8-openj9'}
                 }
             steps{
                 sh 'mvn package'
+                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
+            
         }
 
     }
