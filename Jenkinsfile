@@ -10,7 +10,8 @@ pipeline{
         stage('Build FrontEnd'){
             agent {
                 docker { image 'node:current-alpine3.13'}
-                environment {
+            }
+            environment {
                     HOME = '.'
                 }
             }
