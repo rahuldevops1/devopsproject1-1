@@ -13,7 +13,6 @@ pipeline{
             }
             environment {
                     HOME = '.'
-                }
             }
             steps{
                 sh 'npm install'
