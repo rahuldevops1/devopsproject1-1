@@ -23,6 +23,7 @@ pipeline{
                     docker {image 'maven:3.6.3-adoptopenjdk-8'}
                 }
             steps{
+                sh 'sudo chown -R 112:117 "/.npm"'
                 sh 'mvn package'
                 archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
