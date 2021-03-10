@@ -1,6 +1,11 @@
 pipeline{
-    agent any
-
+    agent {
+        label 'master'
+    }
+    tools {
+       jdk 'jdk8'
+       maven 'm3'
+    }
     stages{
         stage('Checkout SCM'){
             steps{
@@ -8,27 +13,42 @@ pipeline{
             }
         }
         stage('Build FrontEnd'){
-            agent {
-                docker { image 'node:current-alpine3.13'}
-            }
-            environment {
-                    HOME = '.'
-            }
             steps{
+                //sh './mvnw'
                 sh 'npm install'
                 sh 'npm build'
             }
 
         }
         stage('Build BackEnd'){
-            agent{
-                    docker {image 'maven:3.6.3-adoptopenjdk-8'}
-                }
             steps{
                 sh 'mvn package'
-                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
+                archiveArtifacts artifacts: 'target/*.jar', followSymlinks: false
             }
             
+        }
+         stage('Build Image') {
+            steps {
+                sh "docker image build . -t csdeol100/proj1"
+            }
+        }
+        stage('Publish Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                  sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                  sh "docker image push csdeol100/proj1"
+                }
+            }
+        }
+        stage('Deploy on AWS'){
+            steps{
+                sshagent(['awsagent']) {
+                    sh 'ssh -o StrictHostKeyChecking=no -l ubuntu 54.86.131.60 uname -a'
+                    sh 'ssh -v ubuntu@54.86.131.60 docker container run -idt -p 8080:8080 csdeol100/proj1'
+                  
+
+                }
+            }
         }
 
     }
